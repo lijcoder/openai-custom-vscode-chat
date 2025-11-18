@@ -1,10 +1,12 @@
 {
     "models": [
         {
+            "id": "qwen3-coder-plus",
             "displayName": "Qwen3-Coder-Plus",
             "modelName": "qwen3-coder-plus",
             "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
             "apiKey": "sk-xxx",
+            "tooltip": "阿里巴巴出版的Qwen3 Coder模型",
             "family": "Qwen3",
             "maxInputTokens": 997952,
             "maxOutputTokens": 65536,
