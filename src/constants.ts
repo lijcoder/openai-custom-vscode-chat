@@ -1,0 +1,1 @@
+export const MODEL_CONFIG_FILE_PATH_KEY = "openai.custom.config.file.path";

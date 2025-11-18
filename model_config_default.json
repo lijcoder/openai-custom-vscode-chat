@@ -1,0 +1,17 @@
+{
+    "models": [
+        {
+            "displayName": "Qwen3-Coder-Plus",
+            "modelName": "qwen3-coder-plus",
+            "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+            "apiKey": "sk-xxx",
+            "family": "Qwen3",
+            "maxInputTokens": 997952,
+            "maxOutputTokens": 65536,
+            "capabilities": {
+                "supports_tools": true,
+                "supports_image": false
+            }
+        }
+    ]
+}
