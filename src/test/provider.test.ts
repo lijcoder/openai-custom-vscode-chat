@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import { OpenAICustomChatModelProvider } from "../provider";
 import { convertMessages, convertTools, validateRequest, validateTools, tryParseJSONObject } from "../utils";
-
+import { Storage } from "../storage";
 interface OpenAIToolCall {
   id: string;
   type: "function";
@@ -25,7 +25,7 @@ suite("OpenAI Custom Chat Provider Extension", () => {
           store: async () => {},
           delete: async () => {},
           onDidChange: (_listener: unknown) => ({ dispose() {} }),
-        } as unknown as vscode.SecretStorage,
+        } as unknown as Storage,
         "GitHubCopilotChat/test VSCode/test"
       );
 
@@ -43,7 +43,7 @@ suite("OpenAI Custom Chat Provider Extension", () => {
           store: async () => {},
           delete: async () => {},
           onDidChange: (_listener: unknown) => ({ dispose() {} }),
-        } as unknown as vscode.SecretStorage,
+        } as unknown as Storage,
         "GitHubCopilotChat/test VSCode/test"
       );
 
@@ -71,7 +71,7 @@ suite("OpenAI Custom Chat Provider Extension", () => {
           store: async () => {},
           delete: async () => {},
           onDidChange: (_listener: unknown) => ({ dispose() {} }),
-        } as unknown as vscode.SecretStorage,
+        } as unknown as Storage,
         "GitHubCopilotChat/test VSCode/test"
       );
 
@@ -104,7 +104,7 @@ suite("OpenAI Custom Chat Provider Extension", () => {
           store: async () => {},
           delete: async () => {},
           onDidChange: (_listener: unknown) => ({ dispose() {} }),
-        } as unknown as vscode.SecretStorage,
+        } as unknown as Storage,
         "GitHubCopilotChat/test VSCode/test"
       );
 

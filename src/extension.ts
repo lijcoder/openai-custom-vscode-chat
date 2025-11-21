@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { OpenAICustomChatModelProvider } from "./provider";
-import { MODEL_CONFIG_FILE_PATH_KEY } from "./constants";
+import { Storage } from "./storage";
 
 export function activate(context: vscode.ExtensionContext) {
   // Build a descriptive User-Agent to help quantify API usage
@@ -10,14 +10,15 @@ export function activate(context: vscode.ExtensionContext) {
   // Keep UA minimal: only extension version and VS Code version
   const ua = `openai-custom-vscode-chat/${extVersion} VSCode/${vscodeVersion}`;
 
-  const provider = new OpenAICustomChatModelProvider(context.secrets, ua);
+  const storage = new Storage(context.globalState);
+  const provider = new OpenAICustomChatModelProvider(storage, ua);
   // Register the OpenAI Custom provider under the vendor id used in package.json
   vscode.lm.registerLanguageModelChatProvider("openai-custom", provider);
 
   // Management command to configure API key
   context.subscriptions.push(
     vscode.commands.registerCommand("openai.custom.manage", async () => {
-      const modelConfigExisting = await context.secrets.get(MODEL_CONFIG_FILE_PATH_KEY);
+      const modelConfigExisting = await storage.getConfig();
       const configPath = await vscode.window.showInputBox({
         title: "OpenAI custom model config",
         prompt: modelConfigExisting ? "Update your model config file path" : "Enter your model config file path",
@@ -29,11 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
         return; // user canceled
       }
       if (!configPath.trim()) {
-        await context.secrets.delete(MODEL_CONFIG_FILE_PATH_KEY);
+        await storage.clearConfig();
         vscode.window.showInformationMessage("OpenAI Custom config cleared.");
         return;
       }
-      await context.secrets.store(MODEL_CONFIG_FILE_PATH_KEY, configPath.trim());
+      await storage.setConfig(configPath.trim());
       vscode.window.showInformationMessage("OpenAI Custom config saved.");
     })
   );

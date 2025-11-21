@@ -10,7 +10,7 @@ import {
 } from "vscode";
 import type { OpenAICustomModelConfig } from "./types";
 import { convertTools, convertMessages, tryParseJSONObject, validateRequest } from "./utils";
-import { MODEL_CONFIG_FILE_PATH_KEY } from "./constants";
+import type { Storage } from "./storage";
 
 /**
  * VS Code Chat provider backed by OpenAI Custom Inference Providers.
@@ -48,11 +48,11 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
   private _emittedTextToolCallIds = new Set<string>();
 
   /**
-   * Create a provider using the given secret storage for the API key.
-   * @param secrets VS Code secret storage.
+   * Create a provider using the given storage for the config.
+   * @param storage Storage.
    */
   constructor(
-    private readonly secrets: vscode.SecretStorage,
+    private readonly storage: Storage,
     private readonly userAgent: string
   ) {}
 
@@ -94,11 +94,12 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
     options: { silent: boolean },
     _token: CancellationToken
   ): Promise<LanguageModelChatInformation[]> {
-    const configPath = await this.ensureConfigPath(options.silent);
-    if (!configPath) {
+    const configPath = await this.storage.getConfig();
+    const ignore = options.silent === true ? true : true;
+    if (!configPath && ignore) {
       return [];
     }
-    const configRaw = await vscode.workspace.fs.readFile(vscode.Uri.file(configPath));
+    const configRaw = await vscode.workspace.fs.readFile(vscode.Uri.file(configPath as string));
     const configText = new TextDecoder().decode(configRaw);
     const configInfo = JSON.parse(configText) as { models: OpenAICustomModelConfig[] };
     const modelConfigTable = new Map<string, OpenAICustomModelConfig>();
@@ -284,14 +285,6 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
       }
       return totalTokens;
     }
-  }
-
-  /**
-   * Ensure an model config file exists in SecretStorage, optionally prompting the user when not silent.
-   * @param silent If true, do not prompt the user.
-   */
-  private async ensureConfigPath(silent: boolean): Promise<string | undefined> {
-    return await this.secrets.get(silent ? MODEL_CONFIG_FILE_PATH_KEY : MODEL_CONFIG_FILE_PATH_KEY);
   }
 
   /**
