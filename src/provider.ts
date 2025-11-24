@@ -8,7 +8,10 @@ import {
   LanguageModelResponsePart,
   Progress,
 } from "vscode";
-import type { OpenAICustomModelConfig } from "./types";
+import type {
+  OpenAICustomModelConfig,
+  OpenAICustomLanguageModelChatInformation,
+} from "./types";
 import { convertTools, convertMessages, tryParseJSONObject, validateRequest } from "./utils";
 import type { Storage } from "./storage";
 
@@ -90,10 +93,10 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
    * @param token A cancellation token which signals if the user cancelled the request or not
    * @returns A promise that resolves to the list of available language models
    */
-  async prepareLanguageModelChatInformation(
+  async prepareLanguageModelChatInformation (
     options: { silent: boolean },
     _token: CancellationToken
-  ): Promise<LanguageModelChatInformation[]> {
+  ): Promise<OpenAICustomLanguageModelChatInformation[]> {
     const configPath = await this.storage.getConfig() as string | undefined;
     const ignore = options.silent === true ? true : true;
     if (!configPath && ignore) {
@@ -110,7 +113,13 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
     const modelConfigTable = new Map<string, OpenAICustomModelConfig>();
     const modelChatInformationList: LanguageModelChatInformation[] = [];
     for (const modelConfig of configInfo.models) {
-      const modelInfo: LanguageModelChatInformation = {
+      let modelCategory: { label: string; order: number } | undefined;
+      if (modelConfig.isDefault) {
+        modelCategory = { label: "", order: Number.MIN_SAFE_INTEGER };
+      } else {
+        modelCategory = undefined;
+      }
+      const modelInfo: OpenAICustomLanguageModelChatInformation = {
         id: modelConfig.id,
         name: modelConfig.displayName,
         tooltip: modelConfig.tooltip,
@@ -119,6 +128,8 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
         version: "1.0.0",
         maxInputTokens: modelConfig.maxInputTokens,
         maxOutputTokens: modelConfig.maxOutputTokens,
+        isDefault: modelConfig.isDefault || false,
+        modelCategory: modelCategory,
         capabilities: {
           toolCalling: modelConfig.capabilities.supports_tools,
           imageInput: modelConfig.capabilities.supports_image,

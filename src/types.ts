@@ -1,3 +1,7 @@
+import {
+  LanguageModelChatInformation
+} from "vscode";
+
 /**
  * OpenAI function-call entry emitted by assistant messages.
  */
@@ -38,6 +42,11 @@ export interface ToolCallBuffer {
 /** OpenAI-style chat roles. */
 export type OpenAIChatRole = "system" | "user" | "assistant" | "tool";
 
+export interface OpenAICustomLanguageModelChatInformation extends LanguageModelChatInformation{
+  isDefault?: boolean;
+  modelCategory?: { label: string; order: number }
+}
+
 /** OpenAI Custom model config */
 export interface OpenAICustomModelConfig {
   id: string;
@@ -50,6 +59,7 @@ export interface OpenAICustomModelConfig {
   maxInputTokens: number;
   maxOutputTokens: number;
   context_length: number;
+  isDefault?: boolean;
   capabilities: {
     supports_tools?: boolean;
     supports_image?: boolean;
