@@ -1,1 +1,1 @@
-# 🤗 OpenAI Custom Provider for GitHub Copilot Chat
+# 🤗 OpenAI Custom Provider for VSCode Chat
