@@ -1,5 +1,5 @@
 {
-	"name": "openai-custom-vscode-chat",
+	"name": "vscode-ai-jie",
 	"publisher": "lijcoder",
 	"displayName": "OpenAI Custom Provider for VSCode Chat",
 	"description": "An extension that integrates OpenAI Custom Inference Providers into VSCode Chat",
@@ -35,9 +35,9 @@
 	"contributes": {
 		"languageModelChatProviders": [
 			{
-				"vendor": "openai-custom",
-				"displayName": "OpenAI Custom",
-				"managementCommand": "openai.custom.manage"
+				"vendor": "jie-openai-custom",
+				"displayName": "Jie OpenAI Custom",
+				"managementCommand": "jie.openai.custom.manage"
 			}
 		],
 		"commands": [
