@@ -4,7 +4,7 @@ import { Storage } from "./storage";
 
 export function activate(context: vscode.ExtensionContext) {
   // Build a descriptive User-Agent to help quantify API usage
-  const ext = vscode.extensions.getExtension("LijCoder.openai-custom-vscode-chat");
+  const ext = vscode.extensions.getExtension("LijCoder.vscode-ai-jie");
   const extVersion = ext?.packageJSON?.version ?? "unknown";
   const vscodeVersion = vscode.version;
   // Keep UA minimal: only extension version and VS Code version

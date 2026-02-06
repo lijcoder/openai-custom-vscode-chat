@@ -52,6 +52,8 @@ export interface OpenAICustomModelConfig {
   modelName: string;
   baseUrl: string;
   apiKey: string;
+  headers: Record<string, string>;
+  body: Record<string, unknown>;
   family: string;
   tooltip?: string;
   maxInputTokens: number;

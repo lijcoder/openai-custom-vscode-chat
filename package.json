@@ -35,7 +35,7 @@
 	"contributes": {
 		"languageModelChatProviders": [
 			{
-				"vendor": "jie-openai-custom",
+				"vendor": "openai-custom",
 				"displayName": "Jie OpenAI Custom",
 				"managementCommand": "jie.openai.custom.manage"
 			}

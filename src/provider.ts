@@ -224,6 +224,8 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
       const baseUrl = modelConfigInfo.baseUrl;
       const apiKey = modelConfigInfo.apiKey;
       const modelName = modelConfigInfo.modelName;
+      const headersCustom = modelConfigInfo.headers;
+      const bodyCustom = modelConfigInfo.body;
 
       const openaiMessages = convertMessages(messages);
 
@@ -252,6 +254,7 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
         stream: true,
         max_tokens: Math.min(options.modelOptions?.max_tokens || 4096, model.maxOutputTokens),
         temperature: options.modelOptions?.temperature ?? 0.7,
+        ...(bodyCustom ?? {}),
       };
 
       // Allow-list model options
@@ -274,13 +277,16 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
       if (toolConfig.tool_choice) {
         (requestBody as Record<string, unknown>).tool_choice = toolConfig.tool_choice;
       }
-      const response = await fetch(`${baseUrl}`, {
-        method: "POST",
-        headers: {
+
+      const headers = {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
           "User-Agent": this.userAgent,
-        },
+          ...(headersCustom ?? {}),
+      };
+      const response = await fetch(`${baseUrl}`, {
+        method: "POST",
+        headers: headers,
         body: JSON.stringify(requestBody),
       });
 
