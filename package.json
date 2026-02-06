@@ -37,7 +37,7 @@
 			{
 				"vendor": "openai-custom",
 				"displayName": "Jie OpenAI Custom",
-				"managementCommand": "jie.openai.custom.manage"
+				"managementCommand": "openai.custom.manage"
 			}
 		],
 		"commands": [
