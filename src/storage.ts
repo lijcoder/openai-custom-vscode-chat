@@ -6,8 +6,22 @@ import * as path from "path";
 export class Storage {
   constructor(private readonly storage: vscode.Memento) {}
 
-  async setConfig(configPath: string): Promise<void> {
+  async setConfig(configPath: string): Promise<boolean> {
+    try {
+      await vscode.workspace.fs.stat(vscode.Uri.file(configPath as string));
+    } catch {
+      vscode.window.showWarningMessage("OpenAI Custom config file not found at: " + configPath);
+      return false;
+    }
+    const configRaw = await vscode.workspace.fs.readFile(vscode.Uri.file(configPath as string));
+    const configText = new TextDecoder().decode(configRaw);
+    if (!configText) {
+      vscode.window.showWarningMessage("OpenAI Custom config file content is empty: " + configPath);
+      return false;
+    }
     await this.storage.update(constants.MODEL_CONFIG_FILE_PATH_KEY, configPath);
+    await this.storage.update(constants.MODEL_CONFIG_FILE_CONTENT_KEY, configText);
+    return true;
   }
 
   async getConfig(): Promise<string | undefined> {
@@ -19,8 +33,14 @@ export class Storage {
     return defaultConfigPath;
   }
 
+  async getConfigContent(): Promise<string | undefined> {
+    const configContent = this.storage.get<string>(constants.MODEL_CONFIG_FILE_CONTENT_KEY);
+    return configContent;
+  }
+
   async clearConfig(): Promise<void> {
     await this.storage.update(constants.MODEL_CONFIG_FILE_PATH_KEY, undefined);
+    await this.storage.update(constants.MODEL_CONFIG_FILE_CONTENT_KEY, undefined);
   }
 
   async showAndSetConfig(): Promise<void> {
@@ -40,7 +60,11 @@ export class Storage {
       vscode.window.showInformationMessage("OpenAI Custom config cleared.");
       return;
     }
-    await this.setConfig(configPath.trim());
-    vscode.window.showInformationMessage("OpenAI Custom config saved.");
+    const setSuccess = await this.setConfig(configPath.trim());
+    if (setSuccess) {
+      vscode.window.showInformationMessage("OpenAI Custom config saved.");
+    } else {
+      // setConfig send warn info
+    }
   }
 }

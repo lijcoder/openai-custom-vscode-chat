@@ -94,12 +94,24 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
     options: { silent: boolean },
     _token: CancellationToken
   ): Promise<OpenAICustomLanguageModelChatInformation[]> {
-    const configPath = await this.getConfigPath(options.silent);
-    if (!configPath) {
+    // ignore, not warn
+    const ignore = options.silent === true ? true : true;
+    if (!ignore) {
       return [];
     }
-    const configRaw = await vscode.workspace.fs.readFile(vscode.Uri.file(configPath as string));
-    const configText = new TextDecoder().decode(configRaw);
+    // first not found, reset
+    let configText = await this.getModelConfigContent();
+    if (!configText) {
+      await this.storage.showAndSetConfig();
+      configText = await await this.getModelConfigContent();
+    }
+    // second not found, send warn info
+    if (!configText) {
+      await vscode.window.showWarningMessage(
+        "OpenAI Custom models not found model in the configuration. please check your config file or reset. " + await this.storage.getConfig()
+      );
+      return [];
+    }
     const configInfo = JSON.parse(configText) as { models: OpenAICustomModelConfig[] };
     const modelConfigTable = new Map<string, OpenAICustomModelConfig>();
     const modelChatInformationList: LanguageModelChatInformation[] = [];
@@ -131,7 +143,7 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
     }
     if (modelChatInformationList.length === 0) {
       vscode.window.showWarningMessage(
-        "OpenAI Custom models not found model in the configuration. please check your config file. " + configPath
+        "OpenAI Custom models not found model in the configuration. please check your config file. " + this.storage.getConfig()
       );
       return [];
     } else {
@@ -140,41 +152,15 @@ export class OpenAICustomChatModelProvider implements LanguageModelChatProvider 
     }
   }
 
+  async getModelConfigContent(): Promise<string | undefined> {
+    return this.storage.getConfigContent();
+  }
+
   async provideLanguageModelChatInformation(
     options: { silent: boolean },
     _token: CancellationToken
   ): Promise<LanguageModelChatInformation[]> {
     return this.prepareLanguageModelChatInformation({ silent: options.silent ?? false }, _token);
-  }
-
-  async getConfigPath(silent: boolean): Promise<string | undefined> {
-    const configPath = (await this.storage.getConfig()) as string | undefined;
-    const ignore = silent === true ? true : true;
-    if (!ignore) {
-      return "";
-    }
-    if (!configPath) {
-      await this.storage.showAndSetConfig();
-    } else {
-      try {
-        await vscode.workspace.fs.stat(vscode.Uri.file(configPath as string));
-      } catch {
-        await this.storage.showAndSetConfig();
-      }
-    }
-    // double check
-    const doubleConfigPath = (await this.storage.getConfig()) as string | undefined;
-    if (!doubleConfigPath) {
-      vscode.window.showWarningMessage("OpenAI Custom config path is not set.");
-      return undefined;
-    }
-    try {
-      await vscode.workspace.fs.stat(vscode.Uri.file(doubleConfigPath as string));
-    } catch {
-      vscode.window.showWarningMessage("OpenAI Custom config file not found at: " + doubleConfigPath);
-      return undefined;
-    }
-    return doubleConfigPath as string;
   }
 
   /**
